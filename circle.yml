@@ -1,3 +1,0 @@
-machine:
-  pre:
-    - git -C .pyenv/ pull
