@@ -1,6 +1,6 @@
+import calendar
 import datetime
 from mock import patch
-import time
 
 __all__ = ['FreezeTime']
 
@@ -48,7 +48,7 @@ class FakeFixedDateTime(FakeDateTime):
 
 def fake_time():
     now = datetime.datetime.utcnow()
-    ts = time.mktime(now.timetuple())
+    ts = calendar.timegm(now.timetuple())
     ts += now.microsecond / 1e6
     return ts
 

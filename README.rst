@@ -27,9 +27,9 @@ goal is to be simple and fast.
 
 * FreezeFrog currently supports mocking the following basic methods:
 
-    * ``datetime.datetime.utcnow``
+  * ``datetime.datetime.utcnow``
 
-    * ``time.time``
+  * ``time.time``
 
 
 Usage

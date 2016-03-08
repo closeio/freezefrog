@@ -13,7 +13,7 @@ class FreezeFrogTestCase(unittest.TestCase):
             dt = datetime.datetime.utcnow()
             self.assertEqual(dt, datetime.datetime(2014, 1, 1))
             self.assertTrue(isinstance(dt, datetime.datetime))
-            self.assertEqual(time.time(), 1388563200)
+            self.assertEqual(time.time(), 1388534400)
 
         dt = datetime.datetime.utcnow()
         self.assertTrue(dt > datetime.datetime(2016, 1, 1))
@@ -23,4 +23,4 @@ class FreezeFrogTestCase(unittest.TestCase):
             time.sleep(0.001)
             dt = datetime.datetime.utcnow()
             self.assertTrue(datetime.datetime(2014, 1, 1) < dt < datetime.datetime(2014, 1, 1, 0, 0, 1))
-            self.assertTrue(1388563200 < time.time() < 1388563201)
+            self.assertTrue(1388534400 < time.time() < 1388534401)
