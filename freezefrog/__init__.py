@@ -47,6 +47,12 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
             cls._start = real_datetime.utcnow()
         return (real_datetime.utcnow() - cls._start) + cls.dt
 
+    @classmethod
+    def now(cls, *args, **kwargs):
+        raise NotImplementedError(
+            '{}.now() is not implemented yet'.format(cls.__name__)
+        )
+
 
 class FakeFixedDateTime(FakeDateTime):
     @classmethod
