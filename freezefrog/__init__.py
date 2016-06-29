@@ -5,18 +5,22 @@ from mock import patch
 __all__ = ['FreezeTime']
 
 
+real_datetime = datetime.datetime
+
+
 # From six
 def with_metaclass(meta, *bases):
     """Create a base class with a metaclass."""
     return meta("NewBase", bases, {})
 
+
 # Adapted from freezegun. This metaclass will make sure that calls to
 # isinstance(real_datetime, FakeDateTime) are True.
-real_datetime = datetime.datetime
 class FakeDateTimeMeta(type):
     @classmethod
     def __instancecheck__(self, obj):
         return isinstance(obj, real_datetime)
+
 
 class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
     """
@@ -28,7 +32,9 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
     @classmethod
     def utcnow(cls, *args, **kwargs):
         if not hasattr(cls, 'dt'):
-            raise NotImplementedError('use {}.set_utcnow(datetime) first'.format(cls.__name__))
+            raise NotImplementedError(
+                'use {}.set_utcnow(datetime) first'.format(cls.__name__)
+            )
         return cls._utcnow()
 
     @classmethod
@@ -43,18 +49,20 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
 
     @classmethod
     def now(cls, *args, **kwargs):
-        raise NotImplementedError('use {}.utcnow() instead'.format(cls.__name__))
+        raise NotImplementedError('mocked {}.now() is not implemented yet'.format(cls.__name__))
 
 class FakeFixedDateTime(FakeDateTime):
     @classmethod
     def _utcnow(cls):
         return cls.dt
 
+
 def fake_time():
     now = datetime.datetime.utcnow()
     ts = calendar.timegm(now.timetuple())
     ts += now.microsecond / 1e6
     return ts
+
 
 class FreezeTime(object):
     """
