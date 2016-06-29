@@ -49,7 +49,10 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
 
     @classmethod
     def now(cls, *args, **kwargs):
-        raise NotImplementedError('mocked {}.now() is not implemented yet'.format(cls.__name__))
+        raise NotImplementedError(
+            'mocked {}.now() is not implemented yet'.format(cls.__name__)
+        )
+
 
 class FakeFixedDateTime(FakeDateTime):
     @classmethod
