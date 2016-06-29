@@ -3,6 +3,7 @@ from freezefrog import FreezeTime
 import time
 import unittest
 
+
 class FreezeFrogTestCase(unittest.TestCase):
     def test_freeze(self):
         dt = datetime.datetime.utcnow()
@@ -22,5 +23,7 @@ class FreezeFrogTestCase(unittest.TestCase):
         with FreezeTime(datetime.datetime(2014, 1, 1), tick=True):
             time.sleep(0.001)
             dt = datetime.datetime.utcnow()
-            self.assertTrue(datetime.datetime(2014, 1, 1) < dt < datetime.datetime(2014, 1, 1, 0, 0, 1))
+            start = datetime.datetime(2014, 1, 1)
+            end = datetime.datetime(2014, 1, 1, 0, 0, 1)
+            self.assertTrue(start < dt < end)
             self.assertTrue(1388534400 < time.time() < 1388534401)
