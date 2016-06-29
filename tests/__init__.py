@@ -24,3 +24,13 @@ class FreezeFrogTestCase(unittest.TestCase):
             dt = datetime.datetime.utcnow()
             self.assertTrue(datetime.datetime(2014, 1, 1) < dt < datetime.datetime(2014, 1, 1, 0, 0, 1))
             self.assertTrue(1388534400 < time.time() < 1388534401)
+
+    def test_now(self):
+        """
+        utcnow() should always be preferred over now() and hence now() should
+        raise an error.
+        """
+        regular_now = datetime.datetime.now()
+        self.assertTrue(regular_now)
+        with FreezeTime(datetime.datetime(2014, 1, 1)):
+            self.assertRaises(NotImplementedError, datetime.datetime.now)
