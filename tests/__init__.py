@@ -42,6 +42,13 @@ class FreezeFrogTestCase(unittest.TestCase):
         with FreezeTime(PAST_DATETIME, tick=True):
             time.sleep(0.001)
             dt = datetime.datetime.utcnow()
-            self.assertTrue(PAST_DATETIME < dt <
-                            PAST_DATETIME + datetime.timedelta(seconds=1))
+            start = PAST_DATETIME
+            end = PAST_DATETIME + datetime.timedelta(seconds=1)
+            self.assertTrue(start < dt < end)
             self.assertTrue(PAST_TIME < time.time() < PAST_TIME+1)
+
+    def test_now(self):
+        regular_now = datetime.datetime.now()
+        self.assertTrue(regular_now)
+        with FreezeTime(datetime.datetime(2014, 1, 1)):
+            self.assertRaises(NotImplementedError, datetime.datetime.now)
