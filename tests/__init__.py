@@ -6,6 +6,7 @@ import unittest
 PAST_DATETIME = datetime.datetime(2014, 1, 1)
 PAST_TIME = 1388534400
 
+
 class FreezeFrogTestCase(unittest.TestCase):
     def test_freeze(self):
         dt = datetime.datetime.utcnow()

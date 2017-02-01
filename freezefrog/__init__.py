@@ -81,7 +81,7 @@ class FreezeTime(object):
     to be patched separately (`extra_patch_datetime=['x.datetime']`).
     """
     def __init__(self, dt, tick=False, extra_patch_datetime=[],
-                                       extra_patch_time=[]):
+                 extra_patch_time=[]):
         datetime_targets = ['datetime.datetime'] + extra_patch_datetime
         time_targets = ['time.time'] + extra_patch_time
 
@@ -98,9 +98,9 @@ class FreezeTime(object):
         datetime_cls.set_utcnow(dt)
 
     def __enter__(self):
-        for patch in self.patches:
-            patch.__enter__()
+        for p in self.patches:
+            p.__enter__()
 
     def __exit__(self, *args):
-        for patch in reversed(self.patches):
-            patch.__exit__()
+        for p in reversed(self.patches):
+            p.__exit__()
