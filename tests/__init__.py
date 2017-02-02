@@ -55,6 +55,12 @@ class FreezeFrogTestCase(unittest.TestCase):
         with FreezeTime(PAST_DATETIME):
             self.assertRaises(Exception, datetime.datetime.now)
 
+        tz_delta = datetime.timedelta()
+
+        with FreezeTime(PAST_DATETIME, tz_delta=tz_delta):
+            dt = datetime.datetime.now()
+            self.assertEqual(dt, PAST_DATETIME)
+
         tz_delta = datetime.timedelta(hours=5)
 
         with FreezeTime(PAST_DATETIME, tz_delta=tz_delta):

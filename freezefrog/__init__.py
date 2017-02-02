@@ -106,7 +106,7 @@ class FreezeTime(object):
         )
 
         datetime_cls.set_utcnow(dt)
-        if tz_delta:
+        if tz_delta is not None:
             datetime_cls.set_tz_delta(tz_delta)
 
     def __enter__(self):
