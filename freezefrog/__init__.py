@@ -53,7 +53,7 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
 
     @classmethod
     def now(cls, *args, **kwargs):
-        if cls.tz_delta:
+        if hasattr(cls, 'tz_delta'):
             return cls.utcnow() + cls.tz_delta
         else:
             raise Exception(
