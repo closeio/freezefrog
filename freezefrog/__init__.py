@@ -73,25 +73,34 @@ class FreezeTime(object):
 
     If tick=True is passed, the clock will start ticking, otherwise the clock
     will remain at the given datetime.
-    """
-    def __init__(self, dt, tick=False):
-        self.dt = dt
-        self.tick = tick
 
-    def __enter__(self):
-        if self.tick:
+    Additional patch targets can be passed via `extra_patch_datetime` and
+    `extra_patch_time` to patch the datetime class or time function if it was
+    already imported in a different module. For example, if module `x` contains
+    `from datetime import datetime` (as opposed to `import datetime`), it needs
+    to be patched separately (`extra_patch_datetime=['x.datetime']`).
+    """
+    def __init__(self, dt, tick=False, extra_patch_datetime=[],
+                 extra_patch_time=[]):
+        datetime_targets = ['datetime.datetime'] + extra_patch_datetime
+        time_targets = ['time.time'] + extra_patch_time
+
+        if tick:
             datetime_cls = FakeDateTime
         else:
             datetime_cls = FakeFixedDateTime
 
-        self.p1 = patch('datetime.datetime', datetime_cls)
-        self.p2 = patch('time.time', fake_time)
+        self.patches = (
+            [patch(target, datetime_cls) for target in datetime_targets] +
+            [patch(target, fake_time) for target in time_targets]
+        )
 
-        self.p1.__enter__()
-        self.p2.__enter__()
+        datetime_cls.set_utcnow(dt)
 
-        datetime_cls.set_utcnow(self.dt)
+    def __enter__(self):
+        for p in self.patches:
+            p.__enter__()
 
     def __exit__(self, *args):
-        self.p2.__exit__(*args)
-        self.p1.__exit__(*args)
+        for p in reversed(self.patches):
+            p.__exit__()
