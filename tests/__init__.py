@@ -51,5 +51,12 @@ class FreezeFrogTestCase(unittest.TestCase):
     def test_now(self):
         regular_now = datetime.datetime.now()
         self.assertTrue(regular_now)
-        with FreezeTime(datetime.datetime(2014, 1, 1)):
-            self.assertRaises(NotImplementedError, datetime.datetime.now)
+
+        with FreezeTime(PAST_DATETIME):
+            self.assertRaises(Exception, datetime.datetime.now)
+
+        tz_delta = datetime.timedelta(hours=5)
+
+        with FreezeTime(PAST_DATETIME, tz_delta=tz_delta):
+            dt = datetime.datetime.now()
+            self.assertEqual(dt, PAST_DATETIME + tz_delta)

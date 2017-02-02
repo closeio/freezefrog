@@ -27,6 +27,8 @@ goal is to be simple and fast.
 
 * FreezeFrog currently supports mocking the following basic methods:
 
+  * ``datetime.datetime.now`` (if ``tz_delta`` is specified)
+
   * ``datetime.datetime.utcnow``
 
   * ``time.time``
