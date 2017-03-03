@@ -28,6 +28,7 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
 
     The clock starts ticking after calling set_utcnow().
     """
+    tz_delta = None
 
     @classmethod
     def utcnow(cls, *args, **kwargs):
@@ -53,7 +54,7 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
 
     @classmethod
     def now(cls, *args, **kwargs):
-        if hasattr(cls, 'tz_delta'):
+        if cls.tz_delta is not None:
             return cls.utcnow() + cls.tz_delta
         else:
             raise Exception(
@@ -96,23 +97,27 @@ class FreezeTime(object):
         time_targets = ['time.time'] + extra_patch_time
 
         if tick:
-            datetime_cls = FakeDateTime
+            self.datetime_cls = FakeDateTime
         else:
-            datetime_cls = FakeFixedDateTime
+            self.datetime_cls = FakeFixedDateTime
 
         self.patches = (
-            [patch(target, datetime_cls) for target in datetime_targets] +
+            [patch(target, self.datetime_cls) for target in datetime_targets] +
             [patch(target, fake_time) for target in time_targets]
         )
 
-        datetime_cls.set_utcnow(dt)
-        if tz_delta is not None:
-            datetime_cls.set_tz_delta(tz_delta)
+        self.datetime_cls.set_utcnow(dt)
+
+        self.tz_delta = tz_delta
 
     def __enter__(self):
+        self.datetime_cls.set_tz_delta(self.tz_delta)
+
         for p in self.patches:
             p.__enter__()
 
     def __exit__(self, *args):
         for p in reversed(self.patches):
             p.__exit__()
+
+        self.datetime_cls.set_tz_delta(None)
