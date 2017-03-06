@@ -66,3 +66,7 @@ class FreezeFrogTestCase(unittest.TestCase):
         with FreezeTime(PAST_DATETIME, tz_delta=tz_delta):
             dt = datetime.datetime.now()
             self.assertEqual(dt, PAST_DATETIME + tz_delta)
+
+        # check no stale tz_deltas remained
+        with FreezeTime(PAST_DATETIME):
+            self.assertRaises(Exception, datetime.datetime.now)
