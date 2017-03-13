@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='freezefrog',
-    version='0.2',
+    version='0.3',
     url='http://github.com/closeio/freezefrog',
     license='MIT',
     author='Thomas Steinacher',
