@@ -1,6 +1,10 @@
 import calendar
 import datetime
-from mock import patch
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 __all__ = ['FreezeTime']
 
