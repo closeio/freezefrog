@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='freezefrog',
-    version='0.3',
+    version='0.3.1',
     url='http://github.com/closeio/freezefrog',
     license='MIT',
     author='Thomas Steinacher',
@@ -11,10 +11,9 @@ setup(
     maintainer_email='engineering@close.io',
     description='Efficient datetime mocking in tests',
     test_suite='tests',
-    tests_require=['mock'],
     platforms='any',
     install_requires=[
-        'mock',
+        'mock>=2.0.0;python_version<"3"',
     ],
     classifiers=[
         'Intended Audience :: Developers',
