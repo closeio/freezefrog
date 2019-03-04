@@ -1,4 +1,9 @@
+# workaround for open() with encoding='' python2/3 compability
+from io import open
 from setuptools import setup
+
+with open('README.rst', encoding='utf-8') as file:
+    long_description = file.read()
 
 setup(
     name='freezefrog',
@@ -10,6 +15,7 @@ setup(
     maintainer='Thomas Steinacher',
     maintainer_email='engineering@close.io',
     description='Efficient datetime mocking in tests',
+    long_description=long_description,
     test_suite='tests',
     platforms='any',
     install_requires=[
