@@ -13,7 +13,7 @@ setup(
     test_suite='tests',
     platforms='any',
     install_requires=[
-        'mock==2.0.0;python_version<"3"',
+        'mock>=2.0.0;python_version<"3"',
     ],
     classifiers=[
         'Intended Audience :: Developers',
