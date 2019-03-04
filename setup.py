@@ -7,7 +7,7 @@ with open('README.rst', encoding='utf-8') as file:
 
 setup(
     name='freezefrog',
-    version='0.3.1',
+    version='0.3.2',
     url='http://github.com/closeio/freezefrog',
     license='MIT',
     author='Thomas Steinacher',
