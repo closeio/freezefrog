@@ -122,6 +122,6 @@ class FreezeTime(object):
 
     def __exit__(self, *args):
         for p in reversed(self.patches):
-            p.__exit__()
+            p.__exit__(*args)
 
         self.datetime_cls.set_tz_delta(None)
