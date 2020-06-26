@@ -1,7 +1,9 @@
 import datetime
-from freezefrog import FreezeTime
 import time
 import unittest
+
+import pytz
+from freezefrog import FreezeTime
 
 PAST_DATETIME = datetime.datetime(2014, 1, 1)
 PAST_TIME = 1388534400
@@ -70,3 +72,10 @@ class FreezeFrogTestCase(unittest.TestCase):
         # check no stale tz_deltas remained
         with FreezeTime(PAST_DATETIME):
             self.assertRaises(Exception, datetime.datetime.now)
+
+    def test_utcnow_works_with_tz_aware_datetime(self):
+        dt_aware = datetime.datetime.now(pytz.UTC)
+        tz_delta = datetime.timedelta()
+        with FreezeTime(dt_aware, tz_delta=tz_delta):
+            dt_naive = datetime.datetime.utcnow()
+            self.assertIsNone(dt_naive.tzinfo)
