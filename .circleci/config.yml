@@ -14,7 +14,7 @@ defaults: &defaults
   - checkout
   - run:
       name: Install dependencies
-      command: sudo pip install flake8 pytest
+      command: sudo pip install flake8 pytest pytz
   - run:
       name: Lint
       command: flake8
