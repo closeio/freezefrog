@@ -14,7 +14,9 @@ TEN_SEC_DELTA = datetime.timedelta(seconds=10)
 
 class FreezeFrogTestCase(unittest.TestCase):
     def test_freeze_no_tick_utc(self):
-        utc_localized_past_datetime = pytz.UTC.localize(PAST_DATETIME)
+        utc_naive_past_datetime = pytz.UTC.localize(PAST_DATETIME).replace(
+            tzinfo=None
+        )
 
         dt = datetime.datetime.now()
         self.assertTrue(dt > datetime.datetime(2016, 1, 1))
@@ -28,7 +30,7 @@ class FreezeFrogTestCase(unittest.TestCase):
             self.assertEqual(datetime.datetime.now(), PAST_DATETIME)
             self.assertEqual(datetime.datetime.today(), PAST_DATETIME)
             self.assertEqual(
-                datetime.datetime.utcnow(), utc_localized_past_datetime
+                datetime.datetime.utcnow(), utc_naive_past_datetime
             )
 
             self.assertEqual(
@@ -42,7 +44,9 @@ class FreezeFrogTestCase(unittest.TestCase):
         self.assertTrue(dt > datetime.datetime(2016, 1, 1))
 
     def test_freeze_tick_utc(self):
-        utc_localized_past_datetime = pytz.UTC.localize(PAST_DATETIME)
+        utc_naive_past_datetime = pytz.UTC.localize(PAST_DATETIME).replace(
+            tzinfo=None
+        )
 
         dt = datetime.datetime.now()
         self.assertTrue(dt > datetime.datetime(2016, 1, 1))
@@ -64,9 +68,9 @@ class FreezeFrogTestCase(unittest.TestCase):
                 < PAST_DATETIME + TEN_SEC_DELTA
             )
             self.assertTrue(
-                utc_localized_past_datetime
+                utc_naive_past_datetime
                 < datetime.datetime.utcnow()
-                < utc_localized_past_datetime + TEN_SEC_DELTA
+                < utc_naive_past_datetime + TEN_SEC_DELTA
             )
 
             self.assertTrue(
@@ -79,16 +83,12 @@ class FreezeFrogTestCase(unittest.TestCase):
         self.assertTrue(dt > datetime.datetime(2016, 1, 1))
 
     def test_freeze_new_york(self):
-        ny_localized_past_datetime = pytz.timezone(
-            "America/New_York"
-        ).localize(PAST_DATETIME)
-        with FreezeTime(
-            PAST_DATETIME, pytz.timezone("America/New_York"), tick=True
-        ):
-            self.assertTrue(
-                ny_localized_past_datetime
-                < datetime.datetime.utcnow()
-                < ny_localized_past_datetime + TEN_SEC_DELTA
+        ny_to_utc_naive_past_datetime = pytz.UTC.normalize(
+            pytz.timezone("America/New_York").localize(PAST_DATETIME)
+        ).replace(tzinfo=None)
+        with FreezeTime(PAST_DATETIME, pytz.timezone("America/New_York")):
+            self.assertEqual(
+                datetime.datetime.utcnow(), ny_to_utc_naive_past_datetime
             )
 
     def test_freeze_extra(self):
