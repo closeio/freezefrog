@@ -1,5 +1,3 @@
-# workaround for open() with encoding='' python2/3 compability
-from io import open
 from setuptools import setup
 
 with open('README.rst', encoding='utf-8') as file:
@@ -7,20 +5,18 @@ with open('README.rst', encoding='utf-8') as file:
 
 setup(
     name='freezefrog',
-    version='0.3.2',
+    version='0.4.0',
     url='http://github.com/closeio/freezefrog',
     license='MIT',
     author='Thomas Steinacher',
     author_email='engineering@close.io',
     maintainer='Thomas Steinacher',
     maintainer_email='engineering@close.io',
-    description='Efficient datetime mocking in tests',
+    description='Datetime mocking in tests',
     long_description=long_description,
     test_suite='tests',
     platforms='any',
-    install_requires=[
-        'mock>=2.0.0;python_version<"3"',
-    ],
+    install_requires=[],
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
