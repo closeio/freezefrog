@@ -23,6 +23,36 @@ def is_pytz(tz):
     return hasattr(tz, "localize")
 
 
+def get_pytz_dst_from_fold(dt, tz, fold):
+    """
+    The relationship between pytz's `is_dst` and datetime's `fold` is not
+    obvious:
+
+    datetime's `fold` lets you say you want either the earlier time
+    (fold=0) or the later time (fold=1) in a DST.
+
+    pytz's `is_dst` lets you say whether you want to time that was inside the
+    DST interval (the non-standard timezone offset for that region), or outside
+    (the standard timezone offset for that region).
+
+    Because the time can be rewinded when the DST kicks in, or when it's being
+    rolled out:
+    - `is_dst=False and fold=0`: Time rewinded when the DST kicked in, and you
+        want the earliest.
+    - `is_dst=True and fold=0`: Time rewinded when the DST rolled out, and you
+        want the earliest.
+    - `is_dst=False and fold=1`: Time rewinded when the DST rolled out, and you
+        want the latest.
+    - `is_dst=True and fold=1`: Time rewinded when the DST kicked in, and you
+        want the latest.
+    """
+    non_dst_in_utc = pytz.UTC.normalize(tz.localize(dt, is_dst=False))
+    dst_in_utc = pytz.UTC.normalize(tz.localize(dt, is_dst=True))
+    if fold:
+        return dst_in_utc > non_dst_in_utc
+    return non_dst_in_utc > dst_in_utc
+
+
 # From six
 def with_metaclass(meta, *bases):
     """Create a base class with a metaclass."""
@@ -50,7 +80,7 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
     _start = None
 
     @classmethod
-    def start(cls, dt, tz, tick):
+    def start(cls, dt, tz, tick, fold):
         cls.dt = dt
         cls.tz = tz
         cls._start = time.monotonic() if tick else None
@@ -61,9 +91,11 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
                     "pytz not supported, please install pytz first"
                 )
 
+            cls.is_dst = get_pytz_dst_from_fold(dt, tz, fold)
             cls.now = cls.now_with_pytz
             cls.utcnow = cls.utcnow_with_pytz
         else:
+            cls.fold = fold
             cls.now = cls.now_with_datetime_tz
             cls.utcnow = cls.utcnow_with_datetime_tz
 
@@ -78,14 +110,20 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
         if tz is None:
             return cls.dt + cls.time_since_start()
         return (
-            cls.dt.replace(tzinfo=cls.tz) + cls.time_since_start()
+            cls.dt.replace(tzinfo=cls.tz, fold=cls.fold).astimezone(
+                datetime.timezone.utc
+            )
+            + cls.time_since_start()
         ).astimezone(tz)
 
     @classmethod
     def now_with_pytz(cls, tz=None):
         if tz is None:
             return cls.dt + cls.time_since_start()
-        return tz.normalize(cls.tz.localize(cls.dt) + cls.time_since_start())
+        return tz.normalize(
+            pytz.UTC.normalize(cls.tz.localize(cls.dt, is_dst=cls.is_dst))
+            + cls.time_since_start()
+        )
 
     @classmethod
     def today(cls):
@@ -121,7 +159,13 @@ class FreezeTime(object):
     """
 
     def __init__(
-        self, dt, tz, tick=False, extra_patch_datetime=(), extra_patch_time=()
+        self,
+        dt,
+        tz,
+        tick=False,
+        fold=0,
+        extra_patch_datetime=(),
+        extra_patch_time=(),
     ):
         datetime_targets = ("datetime.datetime",) + tuple(extra_patch_datetime)
         time_targets = ("time.time",) + tuple(extra_patch_time)
@@ -133,9 +177,12 @@ class FreezeTime(object):
         self._dt = dt
         self._tz = tz
         self._tick = tick
+        self._fold = fold
 
     def __enter__(self):
-        FakeDateTime.start(self._dt, self._tz, tick=self._tick)
+        FakeDateTime.start(
+            self._dt, self._tz, tick=self._tick, fold=self._fold
+        )
 
         for p in self.patches:
             p.__enter__()

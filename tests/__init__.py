@@ -69,13 +69,14 @@ class FreezeFrogTestCase(unittest.TestCase):
         self.assertTrue(dt > datetime.datetime(2016, 1, 1))
 
     def test_freeze_new_york_pytz_interface(self):
+        NYC = pytz.timezone("America/New_York")
         ny_to_utc_past_datetime = pytz.UTC.normalize(
-            pytz.timezone("America/New_York").localize(PAST_DATETIME)
+            NYC.localize(PAST_DATETIME)
         )
         ny_to_utc_naive_past_datetime = ny_to_utc_past_datetime.replace(
             tzinfo=None
         )
-        with FreezeTime(PAST_DATETIME, pytz.timezone("America/New_York")):
+        with FreezeTime(PAST_DATETIME, NYC):
             self.assertEqual(datetime.datetime.now(), PAST_DATETIME)
             self.assertEqual(datetime.datetime.today(), PAST_DATETIME)
             self.assertEqual(
@@ -87,10 +88,11 @@ class FreezeFrogTestCase(unittest.TestCase):
             self.assertEqual(time.time(), PAST_TIME_NEW_YORK_TIMESTAMP)
 
     def test_freeze_new_york_default_datetime_tz_interface(self):
-        past_datetime_in_utc = PAST_DATETIME.replace(
-            tzinfo=dateutil.tz.gettz("America/New_York")
-        ).astimezone(datetime.timezone.utc)
-        with FreezeTime(PAST_DATETIME, dateutil.tz.gettz("America/New_York")):
+        NYC = dateutil.tz.gettz("America/New_York")
+        past_datetime_in_utc = PAST_DATETIME.replace(tzinfo=NYC).astimezone(
+            datetime.timezone.utc
+        )
+        with FreezeTime(PAST_DATETIME, NYC):
             self.assertEqual(datetime.datetime.now(), PAST_DATETIME)
             self.assertEqual(datetime.datetime.today(), PAST_DATETIME)
             self.assertEqual(
@@ -122,3 +124,87 @@ class FreezeFrogTestCase(unittest.TestCase):
             t, dt = module.get_info()
             self.assertEqual(t, PAST_TIME_UTC_TIMESTAMP)
             self.assertEqual(dt, PAST_DATETIME)
+
+    def test_pytz_dst(self):
+        NYC = pytz.timezone("America/New_York")
+        dst_dt = datetime.datetime(2018, 11, 4, 1, 30)
+        timestamp_dst = 1541309400
+        timestamp_non_dst = 1541313000
+
+        with FreezeTime(dst_dt, NYC):
+            self.assertEqual(datetime.datetime.now(), dst_dt)
+            self.assertEqual(datetime.datetime.today(), dst_dt)
+            self.assertEqual(
+                datetime.datetime.utcnow(),
+                pytz.UTC.normalize(NYC.localize(dst_dt, is_dst=True)).replace(
+                    tzinfo=None
+                ),
+            )
+            self.assertEqual(
+                datetime.datetime.now(pytz.UTC).replace(tzinfo=None),
+                pytz.UTC.normalize(NYC.localize(dst_dt, is_dst=True)).replace(
+                    tzinfo=None
+                ),
+            )
+            self.assertEqual(time.time(), timestamp_dst)
+
+        with FreezeTime(dst_dt, NYC, fold=1):
+            self.assertEqual(datetime.datetime.now(), dst_dt)
+            self.assertEqual(datetime.datetime.today(), dst_dt)
+            self.assertEqual(
+                datetime.datetime.utcnow(),
+                pytz.UTC.normalize(NYC.localize(dst_dt, is_dst=False)).replace(
+                    tzinfo=None
+                ),
+            )
+            self.assertEqual(
+                datetime.datetime.now(pytz.UTC).replace(tzinfo=None),
+                pytz.UTC.normalize(NYC.localize(dst_dt, is_dst=False)).replace(
+                    tzinfo=None
+                ),
+            )
+            self.assertEqual(time.time(), timestamp_non_dst)
+
+    def test_datetime_tz_fold(self):
+        NYC = dateutil.tz.gettz("America/New_York")
+        dst_dt = datetime.datetime(2018, 11, 4, 1, 30)
+        timestamp_earlier = 1541309400
+        timestamp_later = 1541313000
+
+        with FreezeTime(dst_dt, NYC):
+            self.assertEqual(datetime.datetime.now(), dst_dt)
+            self.assertEqual(datetime.datetime.today(), dst_dt)
+            self.assertEqual(
+                datetime.datetime.utcnow(),
+                dst_dt.replace(tzinfo=NYC, fold=0)
+                .astimezone(datetime.timezone.utc)
+                .replace(tzinfo=None),
+            )
+            self.assertEqual(
+                datetime.datetime.now(datetime.timezone.utc).replace(
+                    tzinfo=None
+                ),
+                dst_dt.replace(tzinfo=NYC, fold=0)
+                .astimezone(datetime.timezone.utc)
+                .replace(tzinfo=None),
+            )
+            self.assertEqual(time.time(), timestamp_earlier)
+
+        with FreezeTime(dst_dt, NYC, fold=1):
+            self.assertEqual(datetime.datetime.now(), dst_dt)
+            self.assertEqual(datetime.datetime.today(), dst_dt)
+            self.assertEqual(
+                datetime.datetime.utcnow(),
+                dst_dt.replace(tzinfo=NYC, fold=1)
+                .astimezone(datetime.timezone.utc)
+                .replace(tzinfo=None),
+            )
+            self.assertEqual(
+                datetime.datetime.now(datetime.timezone.utc).replace(
+                    tzinfo=None
+                ),
+                dst_dt.replace(tzinfo=NYC, fold=1)
+                .astimezone(datetime.timezone.utc)
+                .replace(tzinfo=None),
+            )
+            self.assertEqual(time.time(), timestamp_later)
