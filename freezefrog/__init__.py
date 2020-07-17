@@ -1,17 +1,26 @@
 import datetime
 import time
 
-import pytz
-
 try:
     from unittest.mock import patch
 except ImportError:
     from mock import patch
 
+try:
+    import pytz
+
+    PYTZ_SUPPORT = True
+except ImportError:
+    PYTZ_SUPPORT = False
+
 __all__ = ["FreezeTime"]
 
 
 real_datetime = datetime.datetime
+
+
+def is_pytz(tz):
+    return hasattr(tz, "localize")
 
 
 # From six
@@ -46,6 +55,18 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
         cls.tz = tz
         cls._start = time.monotonic() if tick else None
 
+        if is_pytz(tz):
+            if not PYTZ_SUPPORT:
+                raise Exception(
+                    "pytz not supported, please install pytz first"
+                )
+
+            cls.now = cls.now_with_pytz
+            cls.utcnow = cls.utcnow_with_pytz
+        else:
+            cls.now = cls.now_with_datetime_tz
+            cls.utcnow = cls.utcnow_with_datetime_tz
+
     @classmethod
     def time_since_start(cls):
         if cls._start is None:
@@ -53,7 +74,15 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
         return datetime.timedelta(seconds=time.monotonic() - cls._start)
 
     @classmethod
-    def now(cls, tz=None):
+    def now_with_datetime_tz(cls, tz=None):
+        if tz is None:
+            return cls.dt + cls.time_since_start()
+        return (
+            cls.dt.replace(tzinfo=cls.tz) + cls.time_since_start()
+        ).astimezone(tz)
+
+    @classmethod
+    def now_with_pytz(cls, tz=None):
         if tz is None:
             return cls.dt + cls.time_since_start()
         return tz.normalize(cls.tz.localize(cls.dt) + cls.time_since_start())
@@ -63,12 +92,16 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
         return cls.now()
 
     @classmethod
-    def utcnow(cls):
+    def utcnow_with_datetime_tz(cls):
+        return cls.now(tz=datetime.timezone.utc).replace(tzinfo=None)
+
+    @classmethod
+    def utcnow_with_pytz(cls):
         return cls.now(tz=pytz.UTC).replace(tzinfo=None)
 
 
 def fake_time():
-    return FakeDateTime.tz.localize(datetime.datetime.now()).timestamp()
+    return FakeDateTime.now(FakeDateTime.tz).timestamp()
 
 
 class FreezeTime(object):

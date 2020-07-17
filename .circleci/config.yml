@@ -15,7 +15,7 @@ defaults: &defaults
     - checkout
     - run:
         name: Install dependencies
-        command: sudo pip install flake8 pytest pytz
+        command: sudo pip install flake8 pytest pytz python-dateutil
     - run:
         name: Lint
         command: flake8
