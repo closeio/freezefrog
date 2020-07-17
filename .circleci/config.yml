@@ -4,34 +4,44 @@ workflows:
   version: 2
   workflow:
     jobs:
-      - test-2.7
       - test-3.4
       - test-3.5
+      - test-3.6
+      - test-3.7
+      - test-3.8
 
 defaults: &defaults
   working_directory: ~/code
   steps:
-  - checkout
-  - run:
-      name: Install dependencies
-      command: sudo pip install flake8 pytest pytz
-  - run:
-      name: Lint
-      command: flake8
-  - run:
-      name: Test
-      command: python setup.py test
+    - checkout
+    - run:
+        name: Install dependencies
+        command: sudo pip install flake8 pytest pytz
+    - run:
+        name: Lint
+        command: flake8
+    - run:
+        name: Test
+        command: python setup.py test
 
 jobs:
-  test-2.7:
-    <<: *defaults
-    docker:
-    - image: circleci/python:2.7
   test-3.4:
     <<: *defaults
     docker:
-    - image: circleci/python:3.4
+      - image: circleci/python:3.4
   test-3.5:
     <<: *defaults
     docker:
-    - image: circleci/python:3.5
+      - image: circleci/python:3.5
+  test-3.6:
+    <<: *defaults
+    docker:
+      - image: circleci/python:3.6
+  test-3.7:
+    <<: *defaults
+    docker:
+      - image: circleci/python:3.7
+  test-3.8:
+    <<: *defaults
+    docker:
+      - image: circleci/python:3.8
