@@ -64,7 +64,7 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
 
     @classmethod
     def utcnow(cls):
-        return cls.now(tz=pytz.utc)
+        return cls.now(tz=pytz.UTC)
 
 
 def fake_time():
