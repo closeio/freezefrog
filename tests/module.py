@@ -5,4 +5,4 @@ from time import time
 
 
 def get_info():
-    return (time(), datetime.utcnow())
+    return (time(), datetime.now())
