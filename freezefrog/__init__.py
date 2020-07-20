@@ -91,13 +91,14 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
     @classmethod
     def _time_since_start(cls):
         if cls._start is None:
-            return datetime.timedelta(seconds=0)
+            return datetime.timedelta()
         return datetime.timedelta(seconds=time.monotonic() - cls._start)
 
     @classmethod
     def now(cls, tz=None):
         if tz is None:
             return cls.dt + cls._time_since_start()
+        # This is equivalent to Python's own implementation of `now`.
         return tz.fromutc(
             (cls.dt_in_utc + cls._time_since_start()).replace(tzinfo=tz)
         )
