@@ -98,9 +98,9 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
     def now(cls, tz=None):
         if tz is None:
             return cls.dt + cls._time_since_start()
-        if is_pytz(tz):
-            return tz.normalize(cls.dt_in_utc + cls._time_since_start())
-        return (cls.dt_in_utc + cls._time_since_start()).astimezone(tz)
+        return tz.fromutc(
+            (cls.dt_in_utc + cls._time_since_start()).replace(tzinfo=tz)
+        )
 
     @classmethod
     def today(cls):

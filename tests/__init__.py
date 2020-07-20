@@ -208,3 +208,18 @@ class FreezeFrogTestCase(unittest.TestCase):
                 .replace(tzinfo=None),
             )
             self.assertEqual(time.time(), timestamp_later)
+
+    def test_cross_library_timezones(self):
+        dt = datetime.datetime(2014, 1, 1)
+        NYC_datetime = dateutil.tz.gettz("America/New_York")
+        NYC_pytz = pytz.timezone("America/New_York")
+
+        for tz in [NYC_datetime, NYC_pytz]:
+            with FreezeTime(dt, tz):
+                self.assertEqual(
+                    datetime.datetime.now(NYC_datetime),
+                    dt.replace(tzinfo=NYC_datetime),
+                )
+                self.assertEqual(
+                    datetime.datetime.now(NYC_pytz), NYC_pytz.localize(dt)
+                )
