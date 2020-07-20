@@ -76,7 +76,7 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
     _start = None
 
     @classmethod
-    def start(cls, dt, tz, tick, fold):
+    def start(cls, dt, tz, fold, tick):
         cls.dt = dt
         cls.tz = tz
         cls._start = time.monotonic() if tick else None
@@ -158,8 +158,8 @@ class FreezeTime(object):
         self,
         dt,
         tz,
-        tick=False,
         fold=0,
+        tick=False,
         extra_patch_datetime=(),
         extra_patch_time=(),
     ):
@@ -172,12 +172,12 @@ class FreezeTime(object):
 
         self._dt = dt
         self._tz = tz
-        self._tick = tick
         self._fold = fold
+        self._tick = tick
 
     def __enter__(self):
         FakeDateTime.start(
-            self._dt, self._tz, tick=self._tick, fold=self._fold
+            self._dt, self._tz, fold=self._fold, tick=self._tick
         )
 
         for p in self.patches:
