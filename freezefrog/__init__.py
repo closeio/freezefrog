@@ -4,10 +4,8 @@ from unittest.mock import patch
 
 try:
     import pytz
-
-    PYTZ_SUPPORT = True
 except ImportError:
-    PYTZ_SUPPORT = False
+    pass
 
 __all__ = ["FreezeTime"]
 
@@ -82,18 +80,13 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
         cls._start = time.monotonic() if tick else None
 
         if is_pytz(tz):
-            if not PYTZ_SUPPORT:
-                raise Exception(
-                    "pytz not supported, please install pytz first"
-                )
-
-            cls.is_dst = get_pytz_dst_from_fold(dt, tz, fold)
-            cls.now = cls._now_with_pytz
-            cls.utcnow = cls._utcnow_with_pytz
+            cls.dt_in_utc = pytz.UTC.normalize(
+                tz.localize(dt, is_dst=get_pytz_dst_from_fold(dt, tz, fold))
+            )
         else:
-            cls.fold = fold
-            cls.now = cls._now_with_datetime_tz
-            cls.utcnow = cls._utcnow_with_datetime_tz
+            cls.dt_in_utc = dt.replace(tzinfo=tz, fold=fold).astimezone(
+                datetime.timezone.utc
+            )
 
     @classmethod
     def _time_since_start(cls):
@@ -102,36 +95,20 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
         return datetime.timedelta(seconds=time.monotonic() - cls._start)
 
     @classmethod
-    def _now_with_datetime_tz(cls, tz=None):
+    def now(cls, tz=None):
         if tz is None:
             return cls.dt + cls._time_since_start()
-        return (
-            cls.dt.replace(tzinfo=cls.tz, fold=cls.fold).astimezone(
-                datetime.timezone.utc
-            )
-            + cls._time_since_start()
-        ).astimezone(tz)
-
-    @classmethod
-    def _now_with_pytz(cls, tz=None):
-        if tz is None:
-            return cls.dt + cls._time_since_start()
-        return tz.normalize(
-            pytz.UTC.normalize(cls.tz.localize(cls.dt, is_dst=cls.is_dst))
-            + cls._time_since_start()
-        )
-
-    @classmethod
-    def _utcnow_with_datetime_tz(cls):
-        return cls.now(tz=datetime.timezone.utc).replace(tzinfo=None)
-
-    @classmethod
-    def _utcnow_with_pytz(cls):
-        return cls.now(tz=pytz.UTC).replace(tzinfo=None)
+        if is_pytz(tz):
+            return tz.normalize(cls.dt_in_utc + cls._time_since_start())
+        return (cls.dt_in_utc + cls._time_since_start()).astimezone(tz)
 
     @classmethod
     def today(cls):
         return cls.now()
+
+    @classmethod
+    def utcnow(cls):
+        return cls.now(tz=datetime.timezone.utc).replace(tzinfo=None)
 
 
 def fake_time():
