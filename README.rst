@@ -36,8 +36,9 @@ Usage
 Use the ``FreezeTime`` context manager to freeze the time. Pass the desired
 ``datetime`` object to the constructor, and the timezone to mock the system's
 timezone. The constructor also takes the ``tick`` argument (``False`` by
-default), which makes the clock start ticking, and the ``fold`` argument, which
-defines whether an ambiguous time refers to its first or second appearance.
+default), which makes the clock start ticking, and the ``fold`` argument (``0``
+by default), which defines whether an ambiguous time refers to its first or
+second appearance.
 
 .. code:: python
 
