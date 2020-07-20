@@ -30,6 +30,8 @@ is to be simple and fast.
 
   * ``time.time``
 
+* FreezeFrog supports both `datetime` and `pytz` timezone objects.
+
 Usage
 -----
 
