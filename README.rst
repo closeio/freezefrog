@@ -53,9 +53,9 @@ clock start ticking.
   with FreezeTime(datetime.datetime(2014, 1, 1), UTC):
       # The clock is frozen.
       # Always prints 2014-01-01 00:00:00
-      print datetime.datetime.utcnow()
+      print(datetime.datetime.utcnow())
 
   with FreezeTime(datetime.datetime(2014, 1, 1), UTC, tick=True):
       # The clock starts ticking immediately.
       # Example output: 2014-01-01 00:00:00.000005
-      print datetime.datetime.utcnow()
+      print(datetime.datetime.utcnow())
