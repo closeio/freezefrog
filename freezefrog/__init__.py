@@ -88,50 +88,50 @@ class FakeDateTime(with_metaclass(FakeDateTimeMeta, real_datetime)):
                 )
 
             cls.is_dst = get_pytz_dst_from_fold(dt, tz, fold)
-            cls.now = cls.now_with_pytz
-            cls.utcnow = cls.utcnow_with_pytz
+            cls.now = cls._now_with_pytz
+            cls.utcnow = cls._utcnow_with_pytz
         else:
             cls.fold = fold
-            cls.now = cls.now_with_datetime_tz
-            cls.utcnow = cls.utcnow_with_datetime_tz
+            cls.now = cls._now_with_datetime_tz
+            cls.utcnow = cls._utcnow_with_datetime_tz
 
     @classmethod
-    def time_since_start(cls):
+    def _time_since_start(cls):
         if cls._start is None:
             return datetime.timedelta(seconds=0)
         return datetime.timedelta(seconds=time.monotonic() - cls._start)
 
     @classmethod
-    def now_with_datetime_tz(cls, tz=None):
+    def _now_with_datetime_tz(cls, tz=None):
         if tz is None:
-            return cls.dt + cls.time_since_start()
+            return cls.dt + cls._time_since_start()
         return (
             cls.dt.replace(tzinfo=cls.tz, fold=cls.fold).astimezone(
                 datetime.timezone.utc
             )
-            + cls.time_since_start()
+            + cls._time_since_start()
         ).astimezone(tz)
 
     @classmethod
-    def now_with_pytz(cls, tz=None):
+    def _now_with_pytz(cls, tz=None):
         if tz is None:
-            return cls.dt + cls.time_since_start()
+            return cls.dt + cls._time_since_start()
         return tz.normalize(
             pytz.UTC.normalize(cls.tz.localize(cls.dt, is_dst=cls.is_dst))
-            + cls.time_since_start()
+            + cls._time_since_start()
         )
+
+    @classmethod
+    def _utcnow_with_datetime_tz(cls):
+        return cls.now(tz=datetime.timezone.utc).replace(tzinfo=None)
+
+    @classmethod
+    def _utcnow_with_pytz(cls):
+        return cls.now(tz=pytz.UTC).replace(tzinfo=None)
 
     @classmethod
     def today(cls):
         return cls.now()
-
-    @classmethod
-    def utcnow_with_datetime_tz(cls):
-        return cls.now(tz=datetime.timezone.utc).replace(tzinfo=None)
-
-    @classmethod
-    def utcnow_with_pytz(cls):
-        return cls.now(tz=pytz.UTC).replace(tzinfo=None)
 
 
 def fake_time():
