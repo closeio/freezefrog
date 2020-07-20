@@ -7,14 +7,14 @@ try:
 except ImportError:
     pass
 
-__all__ = ["FreezeTime"]
+__all__ = ['FreezeTime']
 
 
 real_datetime = datetime.datetime
 
 
 def is_pytz(tz):
-    return hasattr(tz, "localize")
+    return hasattr(tz, 'localize')
 
 
 def get_pytz_dst_from_fold(dt, tz, fold):
@@ -50,7 +50,7 @@ def get_pytz_dst_from_fold(dt, tz, fold):
 # From six
 def with_metaclass(meta, *bases):
     """Create a base class with a metaclass."""
-    return meta("NewBase", bases, {})
+    return meta('NewBase', bases, {})
 
 
 # Adapted from freezegun. This metaclass will make sure that calls to
@@ -141,8 +141,8 @@ class FreezeTime(object):
         extra_patch_datetime=(),
         extra_patch_time=(),
     ):
-        datetime_targets = ("datetime.datetime",) + tuple(extra_patch_datetime)
-        time_targets = ("time.time",) + tuple(extra_patch_time)
+        datetime_targets = ('datetime.datetime',) + tuple(extra_patch_datetime)
+        time_targets = ('time.time',) + tuple(extra_patch_time)
 
         self.patches = [
             patch(target, FakeDateTime) for target in datetime_targets
