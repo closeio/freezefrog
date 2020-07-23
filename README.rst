@@ -37,10 +37,10 @@ Usage
 
 Use the ``FreezeTime`` context manager to freeze the time. Pass the desired
 ``datetime`` object to the constructor, and the timezone to mock the system's
-timezone. The constructor also takes the ``fold`` argument (``0`` by default),
-which defines whether an ambiguous time refers to its first or second
-appearance, and the ``tick`` argument (``False`` by default), which makes the
-clock start ticking.
+timezone (defaults to `datetime.timzone.utc`). The constructor also takes the
+``fold`` argument (``0`` by default), which defines whether an ambiguous time
+refers to its first or second appearance, and the ``tick`` argument
+(``False`` by default), which makes the clock start ticking.
 
 .. code:: python
 
@@ -48,14 +48,12 @@ clock start ticking.
 
   from freezefrog import FreezeTime
 
-  UTC = datetime.timezone.utc
-
-  with FreezeTime(datetime.datetime(2014, 1, 1), UTC):
+  with FreezeTime(datetime.datetime(2014, 1, 1)):
       # The clock is frozen.
       # Always prints 2014-01-01 00:00:00
       print(datetime.datetime.utcnow())
 
-  with FreezeTime(datetime.datetime(2014, 1, 1), UTC, tick=True):
+  with FreezeTime(datetime.datetime(2014, 1, 1), tick=True):
       # The clock starts ticking immediately.
       # Example output: 2014-01-01 00:00:00.000005
       print(datetime.datetime.utcnow())

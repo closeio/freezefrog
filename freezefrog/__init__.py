@@ -25,7 +25,7 @@ def get_pytz_dst_from_fold(dt, tz, fold):
     datetime's `fold` lets you say you want either the earlier time
     (fold=0) or the later time (fold=1) during the DST transition period.
 
-    pytz's `is_dst` lets you say whether you want to time that was inside the
+    pytz's `is_dst` lets you say whether you want the time that was inside the
     DST interval (the non-standard timezone offset for that region), or outside
     (the standard timezone offset for that region).
 
@@ -135,7 +135,7 @@ class FreezeTime(object):
     def __init__(
         self,
         dt,
-        tz,
+        tz=datetime.timezone.utc,
         fold=0,
         tick=False,
         extra_patch_datetime=(),
