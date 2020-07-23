@@ -5,7 +5,7 @@ with open('README.rst', encoding='utf-8') as file:
 
 setup(
     name='freezefrog',
-    version='0.4.0',
+    version='0.4.1',
     url='http://github.com/closeio/freezefrog',
     license='MIT',
     author='Thomas Steinacher',
@@ -23,11 +23,10 @@ setup(
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     packages=[
         'freezefrog',

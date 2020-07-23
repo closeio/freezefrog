@@ -15,7 +15,7 @@ TEN_SEC_DELTA = datetime.timedelta(seconds=10)
 
 class FreezeFrogTestCase(unittest.TestCase):
     def test_isinstance(self):
-        with FreezeTime(PAST_DATETIME, pytz.UTC):
+        with FreezeTime(PAST_DATETIME):
             self.assertTrue(
                 isinstance(datetime.datetime.now(), datetime.datetime)
             )
@@ -24,7 +24,7 @@ class FreezeFrogTestCase(unittest.TestCase):
         dt = datetime.datetime.now()
         self.assertTrue(dt > datetime.datetime(2016, 1, 1))
 
-        with FreezeTime(PAST_DATETIME, pytz.UTC):
+        with FreezeTime(PAST_DATETIME):
             time.sleep(0.001)
             self.assertEqual(datetime.datetime.now(), PAST_DATETIME)
             self.assertEqual(datetime.datetime.today(), PAST_DATETIME)
@@ -42,7 +42,7 @@ class FreezeFrogTestCase(unittest.TestCase):
         dt = datetime.datetime.now()
         self.assertTrue(dt > datetime.datetime(2016, 1, 1))
 
-        with FreezeTime(PAST_DATETIME, pytz.UTC, tick=True):
+        with FreezeTime(PAST_DATETIME, tick=True):
             time.sleep(0.001)
             self.assertTrue(
                 PAST_DATETIME
@@ -109,7 +109,7 @@ class FreezeFrogTestCase(unittest.TestCase):
         from . import module
 
         # Doesn't work since we've imported the sample module already.
-        with FreezeTime(PAST_DATETIME, pytz.UTC):
+        with FreezeTime(PAST_DATETIME):
             t, dt = module.get_info()
             self.assertNotEqual(t, PAST_TIME_UTC_TIMESTAMP)
             self.assertNotEqual(dt, PAST_DATETIME)
@@ -117,7 +117,6 @@ class FreezeFrogTestCase(unittest.TestCase):
         # Works as expected.
         with FreezeTime(
             PAST_DATETIME,
-            pytz.UTC,
             extra_patch_time=["tests.module.time"],
             extra_patch_datetime=["tests.module.datetime"],
         ):
